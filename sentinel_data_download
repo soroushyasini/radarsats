@@ -1,0 +1,19 @@
+
+from sentinelsat import SentinelAPI, read_geojson, geojson_to_wkt, make_path_filter
+from datetime import date
+
+# connect to the API
+api = SentinelAPI('your_username', 'your_passwrd', 'https://apihub.copernicus.eu/apihub')
+# search by polygon, time, and Hub query keywords
+footprint = geojson_to_wkt(read_geojson('/path/to/map.geojson'))
+products = api.query(footprint,
+                     date = ('20210115', date(2021, 2, 10)), # it's just an example
+                     platformname = 'Sentinel-1',
+                     relativeorbitnumber = 93,
+                     orbitdirection = 'descending', # it can be 'ascending' too .
+                     polarisationmode = 'VV',
+                     producttype = 'SLC')
+                     
+path_filter = make_path_filter("*s1?-iw1-slc-vv-*.*") # it can be iw[123] for the whole area. 
+# download all results from the search
+api.download_all(products, nodefilter=path_filter)
